@@ -1,5 +1,6 @@
-const express = require('express')
-const cors = require('cors')
+import express from 'express'
+import cors from 'cors'
+
 const app = express()
 
 app.use(cors())
@@ -11,7 +12,7 @@ app.get('/api/places', async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://places.googleapis.com/v1/places:searchText`,
+      'https://places.googleapis.com/v1/places:searchText',
       {
         method: 'POST',
         headers: {
