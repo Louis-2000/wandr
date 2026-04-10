@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTrip } from './TripContext'
+import { useBudget } from './BudgetContext'
 import Planner from './Planner'
+import Budget from './Budget'
 
 export default function App() {
   const [activePage, setActivePage] = useState('overview')
@@ -82,6 +84,7 @@ export default function App() {
 
 function Overview() {
   const { trip } = useTrip()
+  const { totalSpent, remaining, budget } = useBudget()
 
   const totalDays = trip.stops.reduce((acc, stop) => {
     if (!stop.arrival || !stop.departure) return acc
@@ -89,32 +92,58 @@ function Overview() {
     return acc + Math.max(0, diff)
   }, 0)
 
-  const totalBudgetAllStops = trip.stops.reduce((acc, stop) => {
+  const totalProjected = trip.stops.reduce((acc, stop) => {
     if (!stop.arrival || !stop.departure) return acc
     const diff = (new Date(stop.departure) - new Date(stop.arrival)) / (1000 * 60 * 60 * 24)
     return acc + (Math.max(0, diff) * stop.dailyBudget)
   }, 0)
 
+  const pct = budget.totalBudget > 0 ? Math.min(100, (totalSpent / budget.totalBudget) * 100) : 0
+
   return (
     <div>
       <h1 className="text-3xl font-serif mb-1">Your trip</h1>
-      <p className="text-sm text-[#9a9890] mb-8">{trip.stops.length} stops planned</p>
+      <p className="text-sm text-[#9a9890] mb-8">{trip.stops.length} stops · {Math.round(totalDays)} days total</p>
 
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-4 gap-3 mb-6">
         <div className="bg-[#161714] border border-white/8 rounded-xl p-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Total stops</div>
-          <div className="text-2xl font-medium text-[#c8f060]">{trip.stops.length}</div>
-          <div className="text-xs text-[#5c5b57] mt-1">destinations planned</div>
+          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Total budget</div>
+          <div className="text-2xl font-medium text-[#c8f060]">£{budget.totalBudget.toLocaleString()}</div>
+          <div className="text-xs text-[#5c5b57] mt-1">set by you</div>
         </div>
         <div className="bg-[#161714] border border-white/8 rounded-xl p-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Total days</div>
-          <div className="text-2xl font-medium text-[#f0ede6]">{Math.round(totalDays)}</div>
-          <div className="text-xs text-[#5c5b57] mt-1">across all stops</div>
+          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Spent so far</div>
+          <div className="text-2xl font-medium text-[#f0ede6]">£{totalSpent.toFixed(2)}</div>
+          <div className="text-xs text-[#5c5b57] mt-1">{Math.round(pct)}% of budget</div>
+        </div>
+        <div className="bg-[#161714] border border-white/8 rounded-xl p-4">
+          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Remaining</div>
+          <div className={`text-2xl font-medium ${remaining < 0 ? 'text-[#ff6b5b]' : 'text-[#f0ede6]'}`}>
+            £{remaining.toFixed(2)}
+          </div>
+          <div className="text-xs text-[#5c5b57] mt-1">{remaining < 0 ? 'over budget' : 'left to spend'}</div>
         </div>
         <div className="bg-[#161714] border border-white/8 rounded-xl p-4">
           <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Projected spend</div>
-          <div className="text-2xl font-medium text-[#f0ede6]">£{Math.round(totalBudgetAllStops).toLocaleString()}</div>
+          <div className="text-2xl font-medium text-[#f0ede6]">£{Math.round(totalProjected).toLocaleString()}</div>
           <div className="text-xs text-[#5c5b57] mt-1">based on daily budgets</div>
+        </div>
+      </div>
+
+      {/* PROGRESS BAR */}
+      <div className="bg-[#161714] border border-white/8 rounded-xl p-4 mb-6">
+        <div className="flex justify-between text-xs text-[#5c5b57] mb-2">
+          <span>Budget used</span>
+          <span>{Math.round(pct)}%</span>
+        </div>
+        <div className="w-full bg-[#272824] rounded-full h-2">
+          <div
+            className="h-2 rounded-full transition-all"
+            style={{
+              width: `${pct}%`,
+              background: pct > 90 ? '#ff6b5b' : pct > 70 ? '#f4a535' : '#c8f060'
+            }}
+          />
         </div>
       </div>
 
@@ -140,17 +169,6 @@ function Overview() {
   )
 }
 
-function Budget() {
-  return (
-    <div>
-      <h1 className="text-3xl font-serif mb-1">Budget tracker</h1>
-      <p className="text-sm text-[#9a9890] mb-8">Log expenses and track your spend</p>
-      <div className="bg-[#161714] border border-white/8 rounded-xl p-5">
-        <p className="text-sm text-[#9a9890]">Budget tracker coming soon - Week 4</p>
-      </div>
-    </div>
-  )
-}
 
 function Discover() {
   return (
