@@ -1,13 +1,20 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const TripContext = createContext()
 
 export function TripProvider({ children }) {
-  const [trip, setTrip] = useState({
-    name: 'My Trip',
-    totalBudget: 9500,
-    stops: [],
+  const [trip, setTrip] = useState(() => {
+    const saved = localStorage.getItem('wandr-trip')
+    return saved ? JSON.parse(saved) : {
+      name: 'My Trip',
+      totalBudget: 9500,
+      stops: [],
+    }
   })
+
+  useEffect(() => {
+    localStorage.setItem('wandr-trip', JSON.stringify(trip))
+  }, [trip])
 
   function addStop(stop) {
     setTrip(prev => ({
