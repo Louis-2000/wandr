@@ -12,7 +12,7 @@ const CATEGORIES = [
 
 const PRICE_LABELS = { 1: 'Free / cheap', 2: 'Mid-range', 3: 'Pricey', 4: 'Expensive' }
 
-const BACKEND_URL = 'http://humorous-luck-production.up.railway.app'
+const BACKEND_URL = 'https://humorous-luck-production.up.railway.app'
 
 export default function Discover() {
   const { trip } = useTrip()
@@ -35,8 +35,8 @@ export default function Discover() {
       const res = await fetch(`${BACKEND_URL}/api/places?query=${encodeURIComponent(query)}`)
       const data = await res.json()
 
-      if (data.places) {
-        setResults(data.places)
+      if (data.results && data.results.length > 0) {
+        setResults(data.results)
       } else {
         setError('No results found — try a different city or category')
       }
@@ -53,12 +53,15 @@ export default function Discover() {
     setResults([])
   }
 
+  function getMapsUrl(place) {
+    return `https://www.google.com/maps/place/?q=place_id:${place.place_id}`
+  }
+
   return (
     <div>
       <h1 className="text-3xl font-serif mb-1">Discover</h1>
       <p className="text-sm text-[#9a9890] mb-8">Find things to do at any destination</p>
 
-      {/* QUICK FILL FROM STOPS */}
       {trip.stops.length > 0 && (
         <div className="bg-[#161714] border border-white/8 rounded-xl p-4 mb-6">
           <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-3">Your stops</div>
@@ -76,7 +79,6 @@ export default function Discover() {
         </div>
       )}
 
-      {/* SEARCH */}
       <div className="bg-[#161714] border border-white/8 rounded-xl p-5 mb-6">
         <div className="mb-4">
           <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-2">City</div>
@@ -118,21 +120,18 @@ export default function Discover() {
         </button>
       </div>
 
-      {/* ERROR */}
       {error && (
         <div className="bg-[#161714] border border-[#ff6b5b]/20 rounded-xl p-4 mb-6">
           <p className="text-sm text-[#ff6b5b]">{error}</p>
         </div>
       )}
 
-      {/* LOADING */}
       {loading && (
         <div className="bg-[#161714] border border-white/8 rounded-xl p-8 text-center mb-6">
           <p className="text-sm text-[#5c5b57]">Finding places in {city}...</p>
         </div>
       )}
 
-      {/* RESULTS */}
       {!loading && searched && results.length > 0 && (
         <>
           <div className="text-xs uppercase tracking-widest text-[#5c5b57] mb-3">
@@ -142,14 +141,14 @@ export default function Discover() {
             {results.map((place, i) => (
               <a
                 key={i}
-                href={place.googleMapsUri}
+                href={getMapsUrl(place)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-[#161714] border border-white/8 rounded-xl p-4 hover:border-white/16 transition-all group block"
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="text-sm font-medium text-[#f0ede6] group-hover:text-[#c8f060] transition-colors leading-snug">
-                    {place.displayName?.text}
+                    {place.name}
                   </div>
                   {place.rating && (
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -158,12 +157,17 @@ export default function Discover() {
                     </div>
                   )}
                 </div>
-                {place.formattedAddress && (
-                  <div className="text-xs text-[#5c5b57] mb-2 line-clamp-1">{place.formattedAddress}</div>
+                {place.formatted_address && (
+                  <div className="text-xs text-[#5c5b57] mb-2 line-clamp-1">{place.formatted_address}</div>
                 )}
                 <div className="flex items-center justify-between">
-                  {place.priceLevel && (
-                    <span className="text-xs text-[#9a9890]">{PRICE_LABELS[place.priceLevel] || ''}</span>
+                  {place.price_level && (
+                    <span className="text-xs text-[#9a9890]">{PRICE_LABELS[place.price_level]}</span>
+                  )}
+                  {place.opening_hours && (
+                    <span className={`text-xs ${place.opening_hours.open_now ? 'text-[#4ecdc4]' : 'text-[#ff6b5b]'}`}>
+                      {place.opening_hours.open_now ? 'Open now' : 'Closed'}
+                    </span>
                   )}
                   <span className="text-xs text-[#5c5b57] group-hover:text-[#c8f060] transition-colors ml-auto">
                     View on Maps →
@@ -175,7 +179,6 @@ export default function Discover() {
         </>
       )}
 
-      {/* EMPTY STATE */}
       {!loading && !searched && (
         <div className="bg-[#161714] border border-white/8 rounded-xl p-8 text-center">
           <p className="text-[#5c5b57] text-sm">Enter a city and pick a category to discover places</p>
