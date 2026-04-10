@@ -12,19 +12,7 @@ app.get('/api/places', async (req, res) => {
 
   try {
     const response = await fetch(
-      'https://places.googleapis.com/v1/places:searchText',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': process.env.GOOGLE_PLACES_KEY,
-          'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.rating,places.priceLevel,places.types,places.googleMapsUri',
-        },
-        body: JSON.stringify({
-          textQuery: query,
-          maxResultCount: 12,
-        }),
-      }
+      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${process.env.GOOGLE_PLACES_KEY}`
     )
     const data = await response.json()
     res.json(data)

@@ -4,6 +4,7 @@ import { useBudget } from './BudgetContext'
 import Planner from './Planner'
 import Budget from './Budget'
 import Transport from './Transport'
+import Discover from './Discover'
 
 export default function App() {
   const [activePage, setActivePage] = useState('overview')
@@ -171,16 +172,6 @@ function Overview() {
 }
 
 
-function Discover() {
-  return (
-    <div>
-      <h1 className="text-3xl font-serif mb-1">Discover</h1>
-      <p className="text-sm text-[#9a9890] mb-8">Find things to do at your current stop</p>
-      <div className="bg-[#161714] border border-white/8 rounded-xl p-5">
-        <p className="text-sm text-[#9a9890]">Discover coming soon - Week 8</p>
-      </div>
-    </div>
-  )
-}
+
 
 
