@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useBudget } from './BudgetContext'
 import { useTrip } from './TripContext'
+import CurrencyConverter from './CurrencyConverter'
 
 const CATEGORIES = ['Accommodation', 'Food & drink', 'Transport', 'Activities', 'Shopping', 'Misc']
 const CATEGORY_COLOURS = {
@@ -57,7 +58,6 @@ export default function Budget() {
       <h1 className="text-3xl font-serif mb-1">Budget tracker</h1>
       <p className="text-sm text-[#9a9890] mb-8">Log expenses and track your spend</p>
 
-      {/* METRIC CARDS */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="bg-[#161714] border border-white/8 rounded-xl p-4">
           <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-1">Total budget</div>
@@ -83,7 +83,6 @@ export default function Budget() {
         </div>
       </div>
 
-      {/* PROGRESS BAR */}
       <div className="bg-[#161714] border border-white/8 rounded-xl p-4 mb-6">
         <div className="flex justify-between text-xs text-[#5c5b57] mb-2">
           <span>Budget used</span>
@@ -101,8 +100,6 @@ export default function Budget() {
       </div>
 
       <div className="grid grid-cols-2 gap-6 mb-6">
-
-        {/* ADD EXPENSE */}
         <div className="bg-[#161714] border border-white/8 rounded-xl p-5">
           <div className="text-xs uppercase tracking-widest text-[#5c5b57] mb-4">Log expense</div>
 
@@ -172,7 +169,6 @@ export default function Budget() {
           </button>
         </div>
 
-        {/* CATEGORY BREAKDOWN */}
         <div className="bg-[#161714] border border-white/8 rounded-xl p-5">
           <div className="text-xs uppercase tracking-widest text-[#5c5b57] mb-4">Spend by category</div>
           {byCategory.length === 0 ? (
@@ -197,8 +193,7 @@ export default function Budget() {
         </div>
       </div>
 
-      {/* EXPENSE LIST */}
-      <div className="bg-[#161714] border border-white/8 rounded-xl p-5">
+      <div className="bg-[#161714] border border-white/8 rounded-xl p-5 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div className="text-xs uppercase tracking-widest text-[#5c5b57]">Expenses</div>
           <div className="flex gap-2">
@@ -232,7 +227,7 @@ export default function Budget() {
               />
               <div className="flex-1">
                 <div className="text-sm font-medium text-[#f0ede6]">{e.description}</div>
-                <div className="text-xs text-[#5c5b57] mt-0.5">{e.category}{e.stop ? ` · ${e.stop}` : ''} · {e.date}</div>
+                <div className="text-xs text-[#5c5b57] mt-0.5">{e.category}{e.stop ? ` - ${e.stop}` : ''} - {e.date}</div>
               </div>
               <div className="text-sm font-medium text-[#f0ede6]">£{parseFloat(e.amount).toFixed(2)}</div>
               <button
@@ -245,6 +240,8 @@ export default function Budget() {
           ))
         )}
       </div>
+
+      <CurrencyConverter />
     </div>
   )
 }
