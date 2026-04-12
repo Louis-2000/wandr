@@ -5,8 +5,9 @@ import Planner from './Planner'
 import Budget from './Budget'
 import Discover from './Discover'
 import Transport from './Transport'
+import { supabase } from './supabase'
 
-export default function App() {
+export default function App({ session }) {
   const [activePage, setActivePage] = useState('overview')
 
   return (
@@ -57,17 +58,23 @@ export default function App() {
           ))}
         </nav>
 
-        {/* USER */}
+{/* USER */}
         <div className="px-3 pt-4" style={{borderTop:'1px solid rgba(255,255,255,0.08)'}}>
           <div className="flex items-center gap-3 px-2 py-2">
             <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{background:'rgba(197,225,97,0.1)',color:'#c5e161'}}>
-              JD
+              {session?.user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div>
-              <div className="text-sm" style={{color:'#ffffff'}}>Jamie</div>
-              <div className="text-xs" style={{color:'#5c5b57'}}>SE Asia</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm truncate" style={{color:'#ffffff'}}>{session?.user?.email}</div>
             </div>
           </div>
+          <button
+            onClick={() => supabase.auth.signOut()}
+            className="w-full text-left px-3 py-1.5 rounded-lg text-xs transition-all"
+            style={{color:'#5c5b57'}}
+          >
+            Sign out
+          </button>
         </div>
       </aside>
 
