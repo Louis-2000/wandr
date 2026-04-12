@@ -19,7 +19,7 @@ export function TripProvider({ children }) {
   function addStop(stop) {
     setTrip(prev => ({
       ...prev,
-      stops: [...prev.stops, { ...stop, id: Date.now() }]
+      stops: [...prev.stops, { ...stop, id: Date.now(), savedPlaces: [] }]
     }))
   }
 
@@ -41,8 +41,31 @@ export function TripProvider({ children }) {
     setTrip(prev => ({ ...prev, totalBudget: amount }))
   }
 
+  function savePlace(stopName, place) {
+    setTrip(prev => ({
+      ...prev,
+      stops: prev.stops.map(s => {
+        if (s.name.split(',')[0].toLowerCase() !== stopName.toLowerCase()) return s
+        const already = (s.savedPlaces || []).some(p => p.place_id === place.place_id)
+        if (already) return s
+        return { ...s, savedPlaces: [...(s.savedPlaces || []), place] }
+      })
+    }))
+  }
+
+  function removeSavedPlace(stopId, placeId) {
+    setTrip(prev => ({
+      ...prev,
+      stops: prev.stops.map(s =>
+        s.id === stopId
+          ? { ...s, savedPlaces: (s.savedPlaces || []).filter(p => p.place_id !== placeId) }
+          : s
+      )
+    }))
+  }
+
   return (
-    <TripContext.Provider value={{ trip, addStop, deleteStop, updateStop, updateBudget }}>
+    <TripContext.Provider value={{ trip, addStop, deleteStop, updateStop, updateBudget, savePlace, removeSavedPlace }}>
       {children}
     </TripContext.Provider>
   )

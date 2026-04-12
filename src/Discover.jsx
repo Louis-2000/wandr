@@ -11,17 +11,17 @@ const CATEGORIES = [
 ]
 
 const PRICE_LABELS = { 1: 'Free / cheap', 2: 'Mid-range', 3: 'Pricey', 4: 'Expensive' }
-
 const BACKEND_URL = 'https://humorous-luck-production.up.railway.app'
 
 export default function Discover() {
-  const { trip } = useTrip()
+  const { trip, savePlace } = useTrip()
   const [city, setCity]         = useState('')
   const [category, setCategory] = useState('tourist attractions')
   const [results, setResults]   = useState([])
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState(null)
   const [searched, setSearched] = useState(false)
+  const [saved, setSaved]       = useState([])
 
   async function handleSearch() {
     if (!city) return
@@ -34,14 +34,13 @@ export default function Discover() {
       const query = `${category} in ${city}`
       const res = await fetch(`${BACKEND_URL}/api/places?query=${encodeURIComponent(query)}`)
       const data = await res.json()
-
       if (data.results && data.results.length > 0) {
         setResults(data.results)
       } else {
-        setError('No results found — try a different city or category')
+        setError('No results found - try a different city or category')
       }
     } catch (err) {
-      setError('Could not connect to server — make sure your backend is running')
+      setError('Could not connect to server - make sure your backend is running')
     } finally {
       setLoading(false)
     }
@@ -51,6 +50,21 @@ export default function Discover() {
     setCity(stop.name.split(',')[0])
     setSearched(false)
     setResults([])
+    setSaved([])
+  }
+
+  function handleSave(place) {
+    if (!city) return
+    savePlace(city, place)
+    setSaved(prev => [...prev, place.place_id])
+  }
+
+  function isPlaceSaved(place) {
+    if (saved.includes(place.place_id)) return true
+    return trip.stops.some(s =>
+      s.name.split(',')[0].toLowerCase() === city.toLowerCase() &&
+      (s.savedPlaces || []).some(p => p.place_id === place.place_id)
+    )
   }
 
   function getMapsUrl(place) {
@@ -59,51 +73,57 @@ export default function Discover() {
 
   return (
     <div>
-      <h1 className="text-3xl font-serif mb-1">Discover</h1>
-      <p className="text-sm text-[#9a9890] mb-8">Find things to do at any destination</p>
+      <h1 className="text-3xl font-serif mb-1" style={{color:'#ffffff'}}>Discover</h1>
+      <p className="text-sm mb-8" style={{color:'#9a9890'}}>Find things to do at any destination</p>
 
       {trip.stops.length > 0 && (
-        <div className="bg-[#161714] border border-white/8 rounded-xl p-4 mb-6">
-          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-3">Your stops</div>
+        <div className="rounded-xl p-4 mb-6" style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}>
+          <div className="text-[10px] uppercase tracking-widest mb-3" style={{color:'#5c5b57'}}>Your stops</div>
           <div className="flex flex-wrap gap-2">
             {trip.stops.map(stop => (
-              <button
-                key={stop.id}
-                onClick={() => handleStopFill(stop)}
-                className="px-3 py-1.5 bg-[#1e1f1c] border border-white/10 rounded-lg text-xs text-[#9a9890] hover:border-[#c8f060]/30 hover:text-[#c8f060] transition-all"
+              <button key={stop.id} onClick={() => handleStopFill(stop)}
+                className="px-3 py-1.5 rounded-lg text-xs transition-all"
+                style={{
+                  background: city === stop.name.split(',')[0] ? 'rgba(197,225,97,0.1)' : '#161614',
+                  border: city === stop.name.split(',')[0] ? '1px solid rgba(197,225,97,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                  color: city === stop.name.split(',')[0] ? '#c5e161' : '#9a9890'
+                }}
               >
                 {stop.name.split(',')[0]}
+                {(stop.savedPlaces || []).length > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px]" style={{background:'rgba(75,219,227,0.15)',color:'#4bdbe3'}}>
+                    {stop.savedPlaces.length}
+                  </span>
+                )}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <div className="bg-[#161714] border border-white/8 rounded-xl p-5 mb-6">
+      <div className="rounded-xl p-5 mb-6" style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}>
         <div className="mb-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-2">City</div>
-          <input
-            type="text"
-            placeholder="e.g. Bangkok"
+          <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>City</div>
+          <input type="text" placeholder="e.g. Bangkok"
             value={city}
             onChange={e => { setCity(e.target.value); setSearched(false) }}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            className="w-full px-3 py-2 bg-[#1e1f1c] border border-white/10 rounded-lg text-sm text-[#f0ede6] placeholder-[#5c5b57] outline-none focus:border-[#c8f060]/50"
+            className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+            style={{background:'#161614',border:'1px solid rgba(255,255,255,0.1)',color:'#ffffff'}}
           />
         </div>
 
         <div className="mb-4">
-          <div className="text-[10px] uppercase tracking-widest text-[#5c5b57] mb-2">Category</div>
+          <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>Category</div>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs transition-all border ${
-                  category === cat.id
-                    ? 'bg-[#c8f060]/10 border-[#c8f060]/30 text-[#c8f060]'
-                    : 'bg-[#1e1f1c] border-white/10 text-[#9a9890] hover:text-[#f0ede6]'
-                }`}
+              <button key={cat.id} onClick={() => setCategory(cat.id)}
+                className="px-3 py-1.5 rounded-lg text-xs transition-all"
+                style={{
+                  background: category === cat.id ? 'rgba(197,225,97,0.1)' : '#161614',
+                  border: category === cat.id ? '1px solid rgba(197,225,97,0.3)' : '1px solid rgba(255,255,255,0.1)',
+                  color: category === cat.id ? '#c5e161' : '#9a9890'
+                }}
               >
                 {cat.icon} {cat.label}
               </button>
@@ -111,77 +131,85 @@ export default function Discover() {
           </div>
         </div>
 
-        <button
-          onClick={handleSearch}
-          disabled={!city || loading}
-          className="w-full py-2.5 bg-[#c8f060] text-[#0e0f0e] rounded-lg text-sm font-medium hover:bg-[#a8d040] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        <button onClick={handleSearch} disabled={!city || loading}
+          className="w-full py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-30"
+          style={{background:'#c5e161',color:'#000000'}}
         >
           {loading ? 'Searching...' : 'Find places'}
         </button>
       </div>
 
       {error && (
-        <div className="bg-[#161714] border border-[#ff6b5b]/20 rounded-xl p-4 mb-6">
-          <p className="text-sm text-[#ff6b5b]">{error}</p>
+        <div className="rounded-xl p-4 mb-6" style={{background:'#0d0d0d',border:'1px solid rgba(255,107,91,0.2)'}}>
+          <p className="text-sm" style={{color:'#ff6b5b'}}>{error}</p>
         </div>
       )}
 
       {loading && (
-        <div className="bg-[#161714] border border-white/8 rounded-xl p-8 text-center mb-6">
-          <p className="text-sm text-[#5c5b57]">Finding places in {city}...</p>
+        <div className="rounded-xl p-8 text-center mb-6" style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}>
+          <p className="text-sm" style={{color:'#5c5b57'}}>Finding places in {city}...</p>
         </div>
       )}
 
       {!loading && searched && results.length > 0 && (
         <>
-          <div className="text-xs uppercase tracking-widest text-[#5c5b57] mb-3">
+          <div className="text-xs uppercase tracking-widest mb-3" style={{color:'#5c5b57'}}>
             {results.length} places found in {city}
           </div>
           <div className="grid grid-cols-2 gap-3">
             {results.map((place, i) => (
-              <a
-                key={i}
-                href={getMapsUrl(place)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#161714] border border-white/8 rounded-xl p-4 hover:border-white/16 transition-all group block"
+              <div key={i} className="rounded-xl p-4 transition-all"
+                style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}
               >
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div className="text-sm font-medium text-[#f0ede6] group-hover:text-[#c8f060] transition-colors leading-snug">
-                    {place.name}
-                  </div>
+                  <div className="text-sm font-medium leading-snug" style={{color:'#ffffff'}}>{place.name}</div>
                   {place.rating && (
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="text-[#f4a535] text-xs">★</span>
-                      <span className="text-xs text-[#9a9890]">{place.rating}</span>
+                      <span style={{color:'#f4a535',fontSize:'12px'}}>★</span>
+                      <span className="text-xs" style={{color:'#9a9890'}}>{place.rating}</span>
                     </div>
                   )}
                 </div>
                 {place.formatted_address && (
-                  <div className="text-xs text-[#5c5b57] mb-2 line-clamp-1">{place.formatted_address}</div>
+                  <div className="text-xs mb-2 line-clamp-1" style={{color:'#5c5b57'}}>{place.formatted_address}</div>
                 )}
-                <div className="flex items-center justify-between">
-                  {place.price_level && (
-                    <span className="text-xs text-[#9a9890]">{PRICE_LABELS[place.price_level]}</span>
-                  )}
+                <div className="flex items-center justify-between mt-3 gap-2">
                   {place.opening_hours && (
-                    <span className={`text-xs ${place.opening_hours.open_now ? 'text-[#4ecdc4]' : 'text-[#ff6b5b]'}`}>
+                    <span className="text-xs" style={{color: place.opening_hours.open_now ? '#4bdbe3' : '#ff6b5b'}}>
                       {place.opening_hours.open_now ? 'Open now' : 'Closed'}
                     </span>
                   )}
-                  <span className="text-xs text-[#5c5b57] group-hover:text-[#c8f060] transition-colors ml-auto">
-                    View on Maps →
-                  </span>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button
+                      onClick={() => handleSave(place)}
+                      disabled={isPlaceSaved(place)}
+                      className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                      style={{
+                        background: isPlaceSaved(place) ? 'rgba(75,219,227,0.1)' : 'rgba(197,225,97,0.1)',
+                        border: isPlaceSaved(place) ? '1px solid rgba(75,219,227,0.3)' : '1px solid rgba(197,225,97,0.3)',
+                        color: isPlaceSaved(place) ? '#4bdbe3' : '#c5e161',
+                        cursor: isPlaceSaved(place) ? 'default' : 'pointer'
+                      }}
+                    >
+                      {isPlaceSaved(place) ? 'Saved' : '+ Save'}
+                    </button>
+                    <a href={getMapsUrl(place)} target="_blank" rel="noopener noreferrer"
+                      className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                      style={{background:'#161614',border:'1px solid rgba(255,255,255,0.1)',color:'#9a9890',textDecoration:'none'}}
+                    >
+                      Maps →
+                    </a>
+                  </div>
                 </div>
-              </a>
+              </div>
             ))}
           </div>
         </>
       )}
 
       {!loading && !searched && (
-        <div className="bg-[#161714] border border-white/8 rounded-xl p-8 text-center">
-          <p className="text-[#5c5b57] text-sm">Enter a city and pick a category to discover places</p>
+        <div className="rounded-xl p-8 text-center" style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}>
+          <p className="text-sm" style={{color:'#5c5b57'}}>Enter a city and pick a category to discover places</p>
         </div>
       )}
     </div>
