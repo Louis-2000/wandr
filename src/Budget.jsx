@@ -15,7 +15,7 @@ const CATEGORY_COLOURS = {
 
 export default function Budget() {
   const { budget, addExpense, deleteExpense, updateTotalBudget, totalSpent, remaining } = useBudget()
-  const { trip } = useTrip()
+  const { activeTrip: trip } = useTrip()
   const [form, setForm] = useState({
     description: '',
     amount: '',
@@ -25,6 +25,7 @@ export default function Budget() {
   })
   const [filterStop, setFilterStop] = useState('All')
   const [filterCat, setFilterCat] = useState('All')
+  if (!trip) return null
 
   function handleAdd() {
     if (!form.description || !form.amount) return

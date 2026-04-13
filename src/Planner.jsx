@@ -5,11 +5,12 @@ import { useBudget } from './BudgetContext'
 const STOP_COLOURS = ['#c5e161', '#4bdbe3', '#f4a535', '#a78bfa', '#ff6b5b', '#4ecdc4']
 
 export default function Planner() {
-  const { trip, addStop, deleteStop, updateStop, removeSavedPlace } = useTrip()
+  const { activeTrip: trip, addStop, deleteStop, updateStop, removeSavedPlace } = useTrip()
   const { budget } = useBudget()
   const [form, setForm] = useState({ name: '', arrival: '', departure: '', dailyBudget: 60 })
   const [showForm, setShowForm] = useState(false)
   const [selectedStop, setSelectedStop] = useState(null)
+  if (!trip) return null
 
   function handleAdd() {
     if (!form.name || !form.arrival || !form.departure) return

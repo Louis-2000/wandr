@@ -14,7 +14,7 @@ const PRICE_LABELS = { 1: 'Free / cheap', 2: 'Mid-range', 3: 'Pricey', 4: 'Expen
 const BACKEND_URL = 'https://humorous-luck-production.up.railway.app'
 
 export default function Discover() {
-  const { trip, savePlace } = useTrip()
+  const { activeTrip: trip, savePlace } = useTrip()
   const [city, setCity]         = useState('')
   const [category, setCategory] = useState('tourist attractions')
   const [results, setResults]   = useState([])
@@ -22,6 +22,7 @@ export default function Discover() {
   const [error, setError]       = useState(null)
   const [searched, setSearched] = useState(false)
   const [saved, setSaved]       = useState([])
+  if (!trip) return null
 
   async function handleSearch() {
     if (!city) return

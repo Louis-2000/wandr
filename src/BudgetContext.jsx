@@ -1,36 +1,38 @@
 import { createContext, useContext, useState, useEffect } from 'react'
+import { useTrip } from './TripContext'
 
 const BudgetContext = createContext()
 
 export function BudgetProvider({ children }) {
-  const [budget, setBudget] = useState(() => {
-    const saved = localStorage.getItem('wandr-budget')
-    return saved ? JSON.parse(saved) : {
-      totalBudget: 9500,
-      expenses: [],
-    }
+  const { activeTripId } = useTrip()
+
+  const [budgets, setBudgets] = useState(() => {
+    const saved = localStorage.getItem('wandr-budgets')
+    return saved ? JSON.parse(saved) : {}
   })
 
   useEffect(() => {
-    localStorage.setItem('wandr-budget', JSON.stringify(budget))
-  }, [budget])
+    localStorage.setItem('wandr-budgets', JSON.stringify(budgets))
+  }, [budgets])
+
+  const key = activeTripId ? String(activeTripId) : null
+  const budget = key && budgets[key] ? budgets[key] : { totalBudget: 9500, expenses: [] }
+
+  function setBudget(newBudget) {
+    if (!key) return
+    setBudgets(prev => ({ ...prev, [key]: newBudget }))
+  }
 
   function addExpense(expense) {
-    setBudget(prev => ({
-      ...prev,
-      expenses: [...prev.expenses, { ...expense, id: Date.now() }]
-    }))
+    setBudget({ ...budget, expenses: [...budget.expenses, { ...expense, id: Date.now() }] })
   }
 
   function deleteExpense(id) {
-    setBudget(prev => ({
-      ...prev,
-      expenses: prev.expenses.filter(e => e.id !== id)
-    }))
+    setBudget({ ...budget, expenses: budget.expenses.filter(e => e.id !== id) })
   }
 
   function updateTotalBudget(amount) {
-    setBudget(prev => ({ ...prev, totalBudget: amount }))
+    setBudget({ ...budget, totalBudget: amount })
   }
 
   const totalSpent = budget.expenses.reduce((acc, e) => acc + parseFloat(e.amount || 0), 0)

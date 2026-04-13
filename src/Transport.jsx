@@ -17,11 +17,12 @@ const SEARCH_ENGINES = [
 ]
 
 export default function Transport() {
-  const { trip } = useTrip()
+  const { activeTrip: trip } = useTrip()
   const [from, setFrom] = useState('')
   const [to, setTo]     = useState('')
   const [date, setDate] = useState('')
   const [searched, setSearched] = useState(false)
+  if (!trip) return null
 
   function handleSearch() { if (!from || !to) return; setSearched(true) }
   function handleStopFill(stop) {
