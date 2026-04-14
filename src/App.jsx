@@ -8,6 +8,7 @@ import Discover from './Discover'
 import Overview from "./Overview"
 import Transport from './Transport'
 import Trips from './Trips'
+import QuickAdd from './QuickAdd'
 
 function formatDate(dateStr) {
   if (!dateStr) return ''
@@ -113,6 +114,7 @@ export default function App({ session }) {
         {activePage === 'discover'  && <Discover />}
         {activePage === 'transport' && <Transport />}
       </main>
+      <QuickAdd />
     </div>
   )
 }
