@@ -1,3 +1,4 @@
+import PlaceAutocomplete from './PlaceAutocomplete'
 import { useState } from 'react'
 import { useTrip } from './TripContext'
 
@@ -55,19 +56,21 @@ export default function Transport() {
         <div className="grid grid-cols-3 gap-4 mb-4">
           <div>
             <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>From</div>
-            <input type="text" placeholder="e.g. Bangkok" value={from}
-              onChange={e => { setFrom(e.target.value); setSearched(false) }}
-              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-              style={{background:'#161614',border:'1px solid rgba(255,255,255,0.1)',color:'#ffffff'}}
-            />
+            <PlaceAutocomplete
+  value={from}
+  onChange={val => { setFrom(val); setSearched(false) }}
+  placeholder="e.g. Bangkok"
+  style={{ padding: '9px 12px', background: '#161614', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
+/>
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>To</div>
-            <input type="text" placeholder="e.g. Chiang Mai" value={to}
-              onChange={e => { setTo(e.target.value); setSearched(false) }}
-              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-              style={{background:'#161614',border:'1px solid rgba(255,255,255,0.1)',color:'#ffffff'}}
-            />
+            <PlaceAutocomplete
+  value={to}
+  onChange={val => { setTo(val); setSearched(false) }}
+  placeholder="e.g. Chiang Mai"
+  style={{ padding: '9px 12px', background: '#161614', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
+/>
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>Date (optional)</div>

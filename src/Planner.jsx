@@ -1,3 +1,4 @@
+import PlaceAutocomplete from './PlaceAutocomplete'
 import { useState } from 'react'
 import { useTrip } from './TripContext'
 import { useBudget } from './BudgetContext'
@@ -318,11 +319,12 @@ export default function Planner() {
 
           <div style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#5c5b57', marginBottom: '8px' }}>Destination</div>
-            <input type="text" placeholder="e.g. Bangkok, Thailand"
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              style={{ width: '100%', padding: '9px 12px', background: '#161614', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
-            />
+            <PlaceAutocomplete
+  value={form.name}
+  onChange={val => setForm({...form, name: val})}
+  placeholder="e.g. Bangkok, Thailand"
+  style={{ padding: '9px 12px', background: '#161614', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
+/>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>

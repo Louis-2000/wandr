@@ -1,3 +1,4 @@
+import PlaceAutocomplete from './PlaceAutocomplete'
 import { useState } from 'react'
 import { useTrip } from './TripContext'
 
@@ -105,13 +106,12 @@ export default function Discover() {
       <div className="rounded-xl p-5 mb-6" style={{background:'#0d0d0d',border:'1px solid rgba(255,255,255,0.08)'}}>
         <div className="mb-4">
           <div className="text-[10px] uppercase tracking-widest mb-2" style={{color:'#5c5b57'}}>City</div>
-          <input type="text" placeholder="e.g. Bangkok"
-            value={city}
-            onChange={e => { setCity(e.target.value); setSearched(false) }}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-            style={{background:'#161614',border:'1px solid rgba(255,255,255,0.1)',color:'#ffffff'}}
-          />
+          <PlaceAutocomplete
+  value={city}
+  onChange={val => { setCity(val); setSearched(false) }}
+  placeholder="e.g. Bangkok"
+  style={{ padding: '9px 12px', background: '#161614', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#ffffff', fontSize: '13px', outline: 'none', fontFamily: 'DM Sans, sans-serif' }}
+/>
         </div>
 
         <div className="mb-4">
