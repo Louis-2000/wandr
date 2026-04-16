@@ -1,3 +1,4 @@
+import MobileApp from './MobileApp'
 import { useState } from 'react'
 import { useTrip } from './TripContext'
 import { useBudget } from './BudgetContext'
@@ -16,7 +17,8 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-export default function App({ session }) {
+export default function App({ session }) { const isMobile = window.innerWidth <= 768
+  if (isMobile) return <MobileApp session={session} />
   const { activeTrip, activeTripId, setActiveTripId, updateTrip } = useTrip()
   const [activePage, setActivePage] = useState('overview')
 
